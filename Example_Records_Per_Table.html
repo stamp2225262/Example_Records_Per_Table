@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ตัวอย่างข้อมูล — ระบบสมาชิกฟิตเนส</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red:    #E63946;
+    --dark:   #0D1117;
+    --panel:  #161B22;
+    --border: #21262D;
+    --text:   #E6EDF3;
+    --muted:  #7D8590;
+    --green:  #3FB950;
+    --yellow: #D29922;
+    --blue:   #58A6FF;
+    --purple: #BC8CFF;
+    --orange: #FFA657;
+    --th-bg:  #1C2128;
+    --tr-alt: #13181F;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    background: var(--dark);
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+  .logo-dot {
+    width: 12px; height: 12px;
+    background: var(--red);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--red);
+  }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header span { color: var(--muted); font-size: 13px; margin-left: auto; font-family: 'JetBrains Mono', monospace; }
+
+  /* ── LAYOUT ── */
+  .container { display: flex; min-height: calc(100vh - 69px); }
+
+  /* ── SIDEBAR ── */
+  nav {
+    width: 220px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    position: sticky;
+    top: 69px;
+    height: calc(100vh - 69px);
+    overflow-y: auto;
+  }
+  nav .group-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: var(--muted);
+    padding: 14px 20px 6px;
+    text-transform: uppercase;
+  }
+  nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 20px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    border-left: 2px solid transparent;
+    transition: all .15s;
+  }
+  nav a:hover { color: var(--text); background: var(--panel); }
+  nav a.active { color: var(--text); border-left-color: var(--red); background: var(--panel); }
+  nav a .dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* ── MAIN ── */
+  main { flex: 1; padding: 40px; overflow-x: hidden; }
+
+  .page-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .page-sub {
+    color: var(--muted);
+    margin-bottom: 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+
+  /* ── TABLE SECTION ── */
+  .table-section {
+    margin-bottom: 48px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .table-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+  }
+  .table-header .tname {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--blue);
+  }
+  .table-header .tdesc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+  .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  /* ── DATA TABLE ── */
+  .data-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    background: var(--th-bg);
+    padding: 10px 16px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: .06em;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:nth-child(even) { background: var(--tr-alt); }
+  tbody tr:hover { background: #1D2530; }
+  tbody td { padding: 10px 16px; vertical-align: middle; }
+
+  /* ── VALUE STYLES ── */
+  .pk   { font-family: 'JetBrains Mono', monospace; color: var(--orange); font-size: 12px; font-weight: 600; }
+  .fk   { font-family: 'JetBrains Mono', monospace; color: var(--purple); font-size: 12px; }
+  .code { font-family: 'JetBrains Mono', monospace; color: var(--blue);   font-size: 12px; }
+  .date { font-family: 'JetBrains Mono', monospace; color: var(--muted);  font-size: 12px; }
+  .num  { font-family: 'JetBrains Mono', monospace; color: var(--green);  font-size: 12px; }
+
+  .status-active    { color: var(--green);  background: #1a3a1a; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+  .status-expired   { color: var(--muted);  background: #222;    padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+  .status-suspended { color: var(--yellow); background: #2d2200; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+  .status-cancelled { color: var(--red);    background: #2d0a0a; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+  .status-pending   { color: #58A6FF;       background: #0d2a45; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+  .status-done      { color: var(--green);  background: #1a3a1a; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+  .bool-true  { color: var(--green);  font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .bool-false { color: var(--red);    font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+  /* ── COLORS FOR GROUPS ── */
+  .g-member  { background: #E6394622; color: #E63946; }
+  .g-staff   { background: #58A6FF22; color: #58A6FF; }
+  .g-admin   { background: #BC8CFF22; color: #BC8CFF; }
+  .g-package { background: #3FB95022; color: #3FB950; }
+  .g-system  { background: #FFA65722; color: #FFA657; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--dark); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-dot"></div>
+  <h1>ระบบสมาชิกฟิตเนส — ตัวอย่างข้อมูล</h1>
+  <span>Fitness Membership System · Sample Data</span>
+</header>
+
+<div class="container">
+<nav>
+  <div class="group-label">สมาชิก</div>
+  <a href="#MEMBER"><span class="dot" style="background:#E63946"></span>MEMBER</a>
+  <a href="#DOCUMENT"><span class="dot" style="background:#E63946"></span>DOCUMENT</a>
+  <a href="#SUBSCRIPTION"><span class="dot" style="background:#E63946"></span>SUBSCRIPTION</a>
+  <a href="#PAYMENT"><span class="dot" style="background:#E63946"></span>PAYMENT</a>
+  <a href="#MEMBERSHIP_CARD"><span class="dot" style="background:#E63946"></span>MEMBERSHIP_CARD</a>
+  <a href="#USAGE_LOG"><span class="dot" style="background:#E63946"></span>USAGE_LOG</a>
+  <a href="#CLASS_USAGE"><span class="dot" style="background:#E63946"></span>CLASS_USAGE</a>
+  <a href="#NOTIFICATION"><span class="dot" style="background:#E63946"></span>NOTIFICATION</a>
+  <a href="#COMPLAINT"><span class="dot" style="background:#E63946"></span>COMPLAINT</a>
+  <div class="group-label">แพ็กเกจ / คลาส</div>
+  <a href="#PACKAGE"><span class="dot" style="background:#3FB950"></span>PACKAGE</a>
+  <a href="#FITNESS_CLASS"><span class="dot" style="background:#3FB950"></span>FITNESS_CLASS</a>
+  <div class="group-label">เจ้าหน้าที่</div>
+  <a href="#STAFF"><span class="dot" style="background:#58A6FF"></span>STAFF</a>
+  <div class="group-label">ผู้ดูแลระบบ</div>
+  <a href="#ADMIN"><span class="dot" style="background:#BC8CFF"></span>ADMIN</a>
+  <a href="#SYSTEM_LOG"><span class="dot" style="background:#BC8CFF"></span>SYSTEM_LOG</a>
+  <a href="#BACKUP"><span class="dot" style="background:#BC8CFF"></span>BACKUP</a>
+</nav>
+
+<main>
+  <div class="page-title">ตัวอย่างข้อมูลในแต่ละตาราง</div>
+  <div class="page-sub">// 15 tables · sample records per table</div>
+
+  <!-- ═══════════════ MEMBER ═══════════════ -->
+  <div class="table-section" id="MEMBER">
+    <div class="table-header">
+      <span class="tname">MEMBER</span>
+      <span class="badge g-member">Member</span>
+      <span class="tdesc">ข้อมูลสมาชิกฟิตเนส</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>member_id</th><th>name</th><th>phone</th><th>email</th><th>id_card</th><th>status</th><th>created_at</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">101</td><td>สมชาย ใจดี</td><td class="code">081-234-5678</td><td class="code">somchai@gmail.com</td><td class="code">1100100123456</td><td><span class="status-active">Active</span></td><td class="date">2025-01-10</td></tr>
+        <tr><td class="pk">102</td><td>วิภา แสงทอง</td><td class="code">092-345-6789</td><td class="code">wipa@gmail.com</td><td class="code">1200200234567</td><td><span class="status-active">Active</span></td><td class="date">2025-02-01</td></tr>
+        <tr><td class="pk">103</td><td>กิตติ มั่นคง</td><td class="code">083-456-7890</td><td class="code">kitti@gmail.com</td><td class="code">1300300345678</td><td><span class="status-expired">Expired</span></td><td class="date">2024-06-15</td></tr>
+        <tr><td class="pk">104</td><td>นิดา รักสุข</td><td class="code">095-567-8901</td><td class="code">nida@gmail.com</td><td class="code">1400400456789</td><td><span class="status-suspended">Suspended</span></td><td class="date">2025-03-20</td></tr>
+        <tr><td class="pk">105</td><td>ธนาวุฒิ พลเยี่ยม</td><td class="code">086-678-9012</td><td class="code">thanawut@gmail.com</td><td class="code">1500500567890</td><td><span class="status-active">Active</span></td><td class="date">2026-01-05</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══════════════ DOCUMENT ═══════════════ -->
+  <div class="table-section" id="DOCUMENT">
+    <div class="table-header">
+      <span class="tname">DOCUMENT</span>
+      <span class="badge g-member">Member</span>
+      <span class="tdesc">เอกสารยืนยันตัวตน / ใบรับรองแพทย์</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>doc_id</th><th>member_id</th><th>doc_type</th><th>file_url</th><th>uploaded_at</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">1</td><td class="fk">101</td><td>บัตรประชาชน</td><td class="code">/uploads/idcard_101.jpg</td><td class="date">2025-01-10</td></tr>
+        <tr><td class="pk">2</td><td class="fk">101</td><td>ใบรับรองแพทย์</td><td class="code">/uploads/medical_101.pdf</td><td class="date">2025-01-10</td></tr>
+        <tr><td class="pk">3</td><td class="fk">102</td><td>บัตรประชาชน</td><td class="code">/uploads/idcard_102.jpg</td><td class="date">2025-02-01</td></tr>
+        <tr><td class="pk">4</td><td class="fk">103</td><td>บัตรประชาชน</td><td class="code">/uploads/idcard_103.jpg</td><td class="date">2024-06-15</td></tr>
+        <tr><td class="pk">5</td><td class="fk">105</td><td>ใบรับรองแพทย์</td><td class="code">/uploads/medical_105.pdf</td><td class="date">2026-01-05</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══════════════ PACKAGE ═══════════════ -->
+  <div class="table-section" id="PACKAGE">
+    <div class="table-header">
+      <span class="tname">PACKAGE</span>
+      <span class="badge g-package">Package</span>
+      <span class="tdesc">แพ็กเกจสมาชิกฟิตเนส</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>package_id</th><th>admin_id</th><th>name</th><th>type</th><th>price (฿)</th><th>duration_days</th><th>zone_access</th><th>is_active</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">1</td><td class="fk">1</td><td>รายเดือน Basic</td><td>รายเดือน</td><td class="num">590</td><td class="num">30</td><td>Cardio, Weights</td><td><span class="bool-true">true</span></td></tr>
+        <tr><td class="pk">2</td><td class="fk">1</td><td>รายเดือน Premium</td><td>รายเดือน</td><td class="num">990</td><td class="num">30</td><td>All Zones</td><td><span class="bool-true">true</span></td></tr>
+        <tr><td class="pk">3</td><td class="fk">1</td><td>รายปี Standard</td><td>รายปี</td><td class="num">5900</td><td class="num">365</td><td>Cardio, Weights</td><td><span class="bool-true">true</span></td></tr>
+        <tr><td class="pk">4</td><td class="fk">1</td><td>รายครั้ง (Day Pass)</td><td>รายครั้ง</td><td class="num">120</td><td class="num">1</td><td>Cardio</td><td><span class="bool-true">true</span></td></tr>
+        <tr><td class="pk">5</td><td class="fk">1</td><td>รายปี VIP</td><td>รายปี</td><td class="num">9900</td><td class="num">365</td><td>All Zones + Classes</td><td><span class="bool-false">false</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══════════════ SUBSCRIPTION ═══════════════ -->
+  <div class="table-section" id="SUBSCRIPTION">
+    <div class="table-header">
+      <span class="tname">SUBSCRIPTION</span>
+      <span class="badge g-member">Member</span>
+      <span class="tdesc">การสมัคร / ต่ออายุแพ็กเกจ</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>subscription_id</th><th>member_id</th><th>package_id</th><th>start_date</th><th>end_date</th><th>status</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">1001</td><td class="fk">101</td><td class="fk">2</td><td class="date">2026-01-01</td><td class="date">2026-01-31</td><td><span class="status-active">Active</span></td></tr>
+        <tr><td class="pk">1002</td><td class="fk">102</td><td class="fk">1</td><td class="date">2026-02-01</td><td class="date">2026-02-28</td><td><span class="status-active">Active</span></td></tr>
+        <tr><td class="pk">1003</td><td class="fk">103</td><td class="fk">3</td><td class="date">2024-06-15</td><td class="date">2025-06-14</td><td><span class="status-expired">Expired</span></td></tr>
+        <tr><td class="pk">1004</td><td class="fk">104</td><td class="fk">1</td><td class="date">2025-10-01</td><td class="date">2025-10-31</td><td><span class="status-suspended">Suspended</span></td></tr>
+        <tr><td class="pk">1005</td><td class="fk">105</td><td class="fk">2</td><td class="date">2026-01-05</td><td class="date">2026-02-04</td><td><span class="status-active">Active</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══════════════ PAYMENT ═══════════════ -->
+  <div class="table-section" id="PAYMENT">
+    <div class="table-header">
+      <span class="tname">PAYMENT</span>
+      <span class="badge g-member">Member</span>
+      <span class="tdesc">ประวัติการชำระเงิน</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>payment_id</th><th>subscription_id</th><th>amount (฿)</th><th>method</th><th>paid_at</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">5001</td><td class="fk">1001</td><td class="num">990.00</td><td>บัตรเครดิต</td><td class="date">2026-01-01 09:15:00</td></tr>
+        <tr><td class="pk">5002</td><td class="fk">1002</td><td class="num">590.00</td><td>QR Promptpay</td><td class="date">2026-02-01 10:30:00</td></tr>
+        <tr><td class="pk">5003</td><td class="fk">1003</td><td class="num">5900.00</td><td>เงินสด</td><td class="date">2024-06-15 14:00:00</td></tr>
+        <tr><td class="pk">5004</td><td class="fk">1004</td><td class="num">590.00</td><td>QR Promptpay</td><td class="date">2025-10-01 11:20:00</td></tr>
+        <tr><td class="pk">5005</td><td class="fk">1005</td><td class="num">990.00</td><td>บัตรเดบิต</td><td class="date">2026-01-05 08:45:00</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══════════════ MEMBERSHIP_CARD ═══════════════ -->
+  <div class="table-section" id="MEMBERSHIP_CARD">
+    <div class="table-header">
+      <span class="tname">MEMBERSHIP_CARD</span>
+      <span class="badge g-member">Member</span>
+      <span class="tdesc">บัตรสมาชิก Physical / Digital</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>card_id</th><th>member_id</th><th>staff_id</th><th>card_type</th><th>qr_code</th><th>issued_at</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">201</td><td class="fk">101</td><td class="fk">11</td><td>Digital (QR Code)</td><td class="code">QR-101-2026A</td><td class="date">2026-01-01</td></tr>
+        <tr><td class="pk">202</td><td class="fk">102</td><td class="fk">11</td><td>Physical (บัตรพลาสติก)</td><td class="code">QR-102-2026B</td><td class="date">2026-02-01</td></tr>
+        <tr><td class="pk">203</td><td class="fk">103</td><td class="fk">12</td><td>Physical (สายรัด)</td><td class="code">QR-103-2024C</td><td class="date">2024-06-15</td></tr>
+        <tr><td class="pk">204</td><td class="fk">104</td><td class="fk">12</td><td>Digital (QR Code)</td><td class="code">QR-104-2025D</td><td class="date">2025-10-01</td></tr>
+        <tr><td class="pk">205</td><td class="fk">105</td><td class="fk">11</td><td>Digital (QR Code)</td><td class="code">QR-105-2026E</td><td class="date">2026-01-05</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══════════════ FITNESS_CLASS ═══════════════ -->
+  <div class="table-section" id="FITNESS_CLASS">
+    <div class="table-header">
+      <span class="tname">FITNESS_CLASS</span>
+      <span class="badge g-package">Package</span>
+      <span class="tdesc">คลาสออกกำลังกาย / โซนพิเศษ</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>class_id</th><th>staff_id</th><th>name</th><th>zone</th><th>schedule</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">301</td><td class="fk">13</td><td>Zumba เช้า</td><td>คลาสกลุ่ม</td><td>จันทร์–พุธ–ศุกร์ 07:00</td></tr>
+        <tr><td class="pk">302</td><td class="fk">13</td><td>Yoga Flow</td><td>คลาสกลุ่ม</td><td>อังคาร–พฤหัสฯ 09:00</td></tr>
+        <tr><td class="pk">303</td><td class="fk">14</td><td>Weight Training พื้นฐาน</td><td>เวท</td><td>จันทร์–ศุกร์ 17:00</td></tr>
+        <tr><td class="pk">304</td><td class="fk">14</td><td>HIIT Cardio</td><td>คาร์ดิโอ</td><td>เสาร์–อาทิตย์ 08:00</td></tr>
+        <tr><td class="pk">305</td><td class="fk">13</td><td>Boxing Fitness</td><td>คลาสกลุ่ม</td><td>อังคาร–พฤหัสฯ 18:00</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══════════════ USAGE_LOG ═══════════════ -->
+  <div class="table-section" id="USAGE_LOG">
+    <div class="table-header">
+      <span class="tname">USAGE_LOG</span>
+      <span class="badge g-member">Member</span>
+      <span class="tdesc">ประวัติการเข้า–ออกฟิตเนส</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>log_id</th><th>member_id</th><th>staff_id</th><th>check_in</th><th>check_out</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">7001</td><td class="fk">101</td><td class="fk">11</td><td class="date">2026-02-10 07:05:00</td><td class="date">2026-02-10 09:30:00</td></tr>
+        <tr><td class="pk">7002</td><td class="fk">102</td><td class="fk">11</td><td class="date">2026-02-10 08:20:00</td><td class="date">2026-02-10 10:00:00</td></tr>
+        <tr><td class="pk">7003</td><td class="fk">101</td><td class="fk">12</td><td class="date">2026-02-12 17:00:00</td><td class="date">2026-02-12 18:45:00</td></tr>
+        <tr><td class="pk">7004</td><td class="fk">105</td><td class="fk">11</td><td class="date">2026-02-13 06:55:00</td><td class="date">2026-02-13 08:30:00</td></tr>
+        <tr><td class="pk">7005</td><td class="fk">102</td><td class="fk">12</td><td class="date">2026-02-14 17:15:00</td><td class="date">2026-02-14 19:00:00</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══════════════ CLASS_USAGE ═══════════════ -->
+  <div class="table-section" id="CLASS_USAGE">
+    <div class="table-header">
+      <span class="tname">CLASS_USAGE</span>
+      <span class="badge g-member">Member</span>
+      <span class="tdesc">ประวัติการใช้คลาส / บริการเสริม</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>usage_id</th><th>member_id</th><th>class_id</th><th>staff_id</th><th>used_at</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">8001</td><td class="fk">101</td><td class="fk">301</td><td class="fk">13</td><td class="date">2026-02-10 07:05:00</td></tr>
+        <tr><td class="pk">8002</td><td class="fk">102</td><td class="fk">302</td><td class="fk">13</td><td class="date">2026-02-11 09:00:00</td></tr>
+        <tr><td class="pk">8003</td><td class="fk">101</td><td class="fk">303</td><td class="fk">14</td><td class="date">2026-02-12 17:00:00</td></tr>
+        <tr><td class="pk">8004</td><td class="fk">105</td><td class="fk">304</td><td class="fk">14</td><td class="date">2026-02-15 08:00:00</td></tr>
+        <tr><td class="pk">8005</td><td class="fk">102</td><td class="fk">305</td><td class="fk">13</td><td class="date">2026-02-13 18:00:00</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══════════════ NOTIFICATION ═══════════════ -->
+  <div class="table-section" id="NOTIFICATION">
+    <div class="table-header">
+      <span class="tname">NOTIFICATION</span>
+      <span class="badge g-member">Member</span>
+      <span class="tdesc">การแจ้งเตือนสมาชิก</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>notification_id</th><th>member_id</th><th>noti_type</th><th>message</th><th>sent_at</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">9001</td><td class="fk">101</td><td>ใกล้หมดอายุ</td><td>สมาชิกของคุณจะหมดอายุใน 7 วัน</td><td class="date">2026-01-24 09:00:00</td></tr>
+        <tr><td class="pk">9002</td><td class="fk">103</td><td>ใกล้หมดอายุ</td><td>สมาชิกของคุณหมดอายุแล้ว กรุณาต่ออายุ</td><td class="date">2025-06-14 08:00:00</td></tr>
+        <tr><td class="pk">9003</td><td class="fk">101</td><td>โปรโมชัน</td><td>โปรโมชันต่ออายุล่วงหน้า ลด 20%!</td><td class="date">2026-01-20 10:00:00</td></tr>
+        <tr><td class="pk">9004</td><td class="fk">102</td><td>คลาสใหม่</td><td>เปิดคลาส Boxing Fitness ทุกอังคาร–พฤหัสฯ 18:00</td><td class="date">2026-02-05 09:30:00</td></tr>
+        <tr><td class="pk">9005</td><td class="fk">105</td><td>ตารางคลาส</td><td>คลาส HIIT เสาร์นี้เวลา 08:00 ที่โซนคาร์ดิโอ</td><td class="date">2026-02-14 18:00:00</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══════════════ COMPLAINT ═══════════════ -->
+  <div class="table-section" id="COMPLAINT">
+    <div class="table-header">
+      <span class="tname">COMPLAINT</span>
+      <span class="badge g-member">Member</span>
+      <span class="tdesc">การร้องเรียน / ข้อเสนอแนะ</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>complaint_id</th><th>member_id</th><th>staff_id</th><th>detail</th><th>status</th><th>created_at</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">401</td><td class="fk">104</td><td class="fk">11</td><td>อุปกรณ์ในโซนเวทชำรุด ลูกน้ำหนักหาย</td><td><span class="status-done">Done</span></td><td class="date">2025-10-05</td></tr>
+        <tr><td class="pk">402</td><td class="fk">102</td><td class="fk">12</td><td>แอร์ในโซนคาร์ดิโอไม่เย็น</td><td><span class="status-done">Done</span></td><td class="date">2026-02-03</td></tr>
+        <tr><td class="pk">403</td><td class="fk">101</td><td class="fk">11</td><td>อยากให้เพิ่มคลาส Pilates</td><td><span class="status-pending">Pending</span></td><td class="date">2026-02-10</td></tr>
+        <tr><td class="pk">404</td><td class="fk">105</td><td class="fk">12</td><td>ระบบ Login ล่มไม่สามารถเช็กอินได้</td><td><span class="status-done">Done</span></td><td class="date">2026-01-08</td></tr>
+        <tr><td class="pk">405</td><td class="fk">103</td><td class="fk">11</td><td>ขอยกเลิกสมาชิก เนื่องจากย้ายที่อยู่</td><td><span class="status-cancelled">Cancelled</span></td><td class="date">2025-06-10</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══════════════ STAFF ═══════════════ -->
+  <div class="table-section" id="STAFF">
+    <div class="table-header">
+      <span class="tname">STAFF</span>
+      <span class="badge g-staff">Staff</span>
+      <span class="tdesc">เจ้าหน้าที่บริการสมาชิกฟิตเนส</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>staff_id</th><th>admin_id</th><th>name</th><th>email</th><th>role</th><th>is_active</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">11</td><td class="fk">1</td><td>มานะ พนักงานดี</td><td class="code">mana@fitness.com</td><td>Front Desk</td><td><span class="bool-true">true</span></td></tr>
+        <tr><td class="pk">12</td><td class="fk">1</td><td>สุภาพ รักงาน</td><td class="code">supap@fitness.com</td><td>Front Desk</td><td><span class="bool-true">true</span></td></tr>
+        <tr><td class="pk">13</td><td class="fk">1</td><td>นิรันดร์ ฟิตแอนด์เฟิร์ม</td><td class="code">niran@fitness.com</td><td>Trainer</td><td><span class="bool-true">true</span></td></tr>
+        <tr><td class="pk">14</td><td class="fk">1</td><td>ปวีณา กล้ามแน่น</td><td class="code">paweena@fitness.com</td><td>Trainer</td><td><span class="bool-true">true</span></td></tr>
+        <tr><td class="pk">15</td><td class="fk">1</td><td>ชาติชาย จัดการเก่ง</td><td class="code">chatchai@fitness.com</td><td>Manager</td><td><span class="bool-false">false</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══════════════ ADMIN ═══════════════ -->
+  <div class="table-section" id="ADMIN">
+    <div class="table-header">
+      <span class="tname">ADMIN</span>
+      <span class="badge g-admin">Admin</span>
+      <span class="tdesc">ผู้ดูแลระบบสมาชิกฟิตเนส</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>admin_id</th><th>name</th><th>email</th><th>password_hash</th><th>created_at</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">1</td><td>อนุชา ระบบมั่น</td><td class="code">anucha@fitness.com</td><td class="code">$2b$12$Xa3kL...hashed</td><td class="date">2024-01-01</td></tr>
+        <tr><td class="pk">2</td><td>สายรุ้ง ดูแลดี</td><td class="code">sairung@fitness.com</td><td class="code">$2b$12$Yb4mM...hashed</td><td class="date">2024-06-01</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══════════════ SYSTEM_LOG ═══════════════ -->
+  <div class="table-section" id="SYSTEM_LOG">
+    <div class="table-header">
+      <span class="tname">SYSTEM_LOG</span>
+      <span class="badge g-admin">Admin</span>
+      <span class="tdesc">ประวัติการใช้งานระบบ (System Log)</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>log_id</th><th>admin_id</th><th>action</th><th>description</th><th>timestamp</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">6001</td><td class="fk">1</td><td>UPDATE_MEMBER</td><td>เปลี่ยนสถานะ member_id=104 เป็น Suspended</td><td class="date">2025-10-01 11:05:00</td></tr>
+        <tr><td class="pk">6002</td><td class="fk">1</td><td>CREATE_PACKAGE</td><td>สร้างแพ็กเกจใหม่: รายปี VIP (package_id=5)</td><td class="date">2025-11-15 14:30:00</td></tr>
+        <tr><td class="pk">6003</td><td class="fk">2</td><td>DELETE_PACKAGE</td><td>ลบแพ็กเกจ: รายปี VIP (package_id=5)</td><td class="date">2026-01-10 09:00:00</td></tr>
+        <tr><td class="pk">6004</td><td class="fk">1</td><td>CREATE_STAFF</td><td>เพิ่มเจ้าหน้าที่ใหม่: ชาติชาย (staff_id=15)</td><td class="date">2026-01-12 10:15:00</td></tr>
+        <tr><td class="pk">6005</td><td class="fk">2</td><td>EXPORT_REPORT</td><td>ออกรายงานสถิติสมาชิกเดือนมกราคม 2026</td><td class="date">2026-02-01 08:00:00</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══════════════ BACKUP ═══════════════ -->
+  <div class="table-section" id="BACKUP">
+    <div class="table-header">
+      <span class="tname">BACKUP</span>
+      <span class="badge g-admin">Admin</span>
+      <span class="tdesc">การสำรองข้อมูลระบบ</span>
+    </div>
+    <div class="data-wrap"><table>
+      <thead><tr><th>backup_id</th><th>admin_id</th><th>file_path</th><th>status</th><th>created_at</th></tr></thead>
+      <tbody>
+        <tr><td class="pk">3001</td><td class="fk">1</td><td class="code">/backups/fitness_2026-01-01.sql.gz</td><td><span class="status-done">Done</span></td><td class="date">2026-01-01 02:00:00</td></tr>
+        <tr><td class="pk">3002</td><td class="fk">1</td><td class="code">/backups/fitness_2026-01-15.sql.gz</td><td><span class="status-done">Done</span></td><td class="date">2026-01-15 02:00:00</td></tr>
+        <tr><td class="pk">3003</td><td class="fk">2</td><td class="code">/backups/fitness_2026-02-01.sql.gz</td><td><span class="status-done">Done</span></td><td class="date">2026-02-01 02:00:00</td></tr>
+        <tr><td class="pk">3004</td><td class="fk">1</td><td class="code">/backups/fitness_2026-02-15.sql.gz</td><td><span class="status-pending">Pending</span></td><td class="date">2026-02-15 02:00:00</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+</main>
+</div>
+
+<script>
+  // Highlight active nav item on scroll
+  const sections = document.querySelectorAll('.table-section');
+  const navLinks = document.querySelectorAll('nav a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 120) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+
+</body>
+</html>
